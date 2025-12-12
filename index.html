@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Produzione Giornaliera</title>
+    <!-- Carica Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configurazione Font Inter -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+        .scrollable-content {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" class="min-h-screen p-4 md:p-8">
+    <!-- Intestazione -->
+    <header class="bg-white shadow-lg rounded-xl p-6 mb-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-3xl font-extrabold text-blue-800 mb-2 md:mb-0">
+                🥖 Registro Produzione Giornaliera
+            </h1>
+            <div class="items-center space-x-2 text-sm text-gray-600 hidden md:flex">
+                <span id="user-info" class="bg-blue-100 text-blue-700 py-1 px-3 rounded-full font-medium shadow-inner">Caricamento Utente...</span>
+                <button onclick="document.getElementById('modal-about').classList.remove('hidden')" class="bg-gray-200 text-gray-700 hover:bg-gray-300 p-2 rounded-full transition duration-150 shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25l.041-.02a.75.75 0 011.063 0l.041.02m.128.895l-.128-.895m.128.895l.895-.128m-.895.128l-.128.895m1.023.256l-1.023-.256m1.023.256l.256 1.023m-1.279-1.279l.128-.895m-.128.895l-.256 1.023m1.023.256l-1.023-.256" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" />
+                    </svg>
+                </button>
+            </div>
+            <!-- Versione mobile delle info -->
+             <button onclick="document.getElementById('modal-about').classList.remove('hidden')" class="md:hidden mt-2 text-blue-600 text-sm font-medium">
+                Vedi Info Utente
+            </button>
+        </div>
+    </header>
+
+    <!-- Sezione Inserimento Dati (Sempre visibile) -->
+    <section class="bg-white shadow-xl rounded-xl p-6 mb-8 border-t-4 border-blue-500">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3 text-blue-500">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m0 0l6-6m-6 6l-6-6M9 18h6" />
+            </svg>
+            Inserisci Produzione di Oggi
+        </h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4" id="input-fields">
+            <!-- I campi di input verranno iniettati qui da JS -->
+        </div>
+
+        <div class="mt-6 flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4">
+            <button id="reset-button" class="bg-red-100 text-red-700 hover:bg-red-200 font-bold py-3 px-6 rounded-lg transition duration-150 shadow-md flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181-3.181m0-2.288-6.6-6.6m10.669 9.923l3.181 3.183h.001M16.025 9.348L8.844 2.22m-4.258 15.65h6.14m-1.748-10.45l-.108 0c-3.834 0-6.95 3.116-6.95 6.95s3.116 6.95 6.95 6.95h7.323m-4.323 1.758a.5.5 0 010-1.002.5.5 0 010 1.002z" />
+                </svg>
+                Resetta
+            </button>
+            <button id="save-button" class="bg-blue-600 text-white hover:bg-blue-700 font-bold py-3 px-6 rounded-lg transition duration-150 shadow-xl flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21.75A2.25 2.25 0 0118 24H6a2.25 2.25 0 01-2.25-2.25V5.507c0-1.108.806-2.057 1.907-2.185A48.752 48.752 0 0112 3c2.454 0 4.85 0.22 7.172 0.655zM12 18v-6m0 0l-3 3m3-3l3 3" />
+                </svg>
+                Salva Produzione di Oggi
+            </button>
+        </div>
+        
+        <div id="save-status" class="mt-4 text-center font-medium text-sm text-green-600"></div>
+    </section>
+
+    <!-- Sezione Visualizzazione Storico -->
+    <section class="bg-white shadow-xl rounded-xl p-6 border-t-4 border-green-500">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3 text-green-500">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Storico Produzione
+        </h2>
+        
+        <div class="flex flex-wrap gap-2 mb-4">
+            <button id="filter-all" class="filter-button bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-md" data-period="all">Tutto</button>
+            <button class="filter-button bg-gray-200 text-gray-700 hover:bg-gray-300 px-3 py-1 rounded-full text-sm transition duration-150" data-period="week">Ultimi 7 giorni</button>
+            <button class="filter-button bg-gray-200 text-gray-700 hover:bg-gray-300 px-3 py-1 rounded-full text-sm transition duration-150" data-period="month">Ultimi 30 giorni</button>
+        </div>
+
+        <div id="history-container" class="scrollable-content">
+            <div id="loading-indicator" class="text-center p-8 text-gray-500">
+                Caricamento dati in corso...
+            </div>
+            <!-- Lo storico verrà visualizzato qui -->
+            <div id="history-list" class="space-y-4"></div>
+        </div>
+    </section>
+</div>
+
+<!-- Modale Informazioni -->
+<div id="modal-about" class="fixed inset-0 bg-gray-600 bg-opacity-75 z-50 hidden flex items-center justify-center p-4" onclick="if(event.target.id==='modal-about') this.classList.add('hidden')">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+        <h3 class="text-xl font-bold mb-4 text-blue-800">Informazioni sull'App</h3>
+        <p class="text-sm text-gray-700 mb-4">Questa è un'applicazione per registrare la produzione giornaliera. I dati vengono salvati in tempo reale utilizzando Firebase Firestore e sono associati al tuo ID utente univoco.</p>
+        <div class="text-xs text-gray-500 mb-4">
+            <p>ID App: <span id="app-id-display"></span></p>
+            <p>ID Utente: <span id="user-id-display"></span></p>
+        </div>
+        <button onclick="document.getElementById('modal-about').classList.add('hidden')" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">Chiudi</button>
+    </div>
+</div>
+
+<!-- Script per Firebase e Logica dell'App -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot, collection, query, orderBy, where, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Imposta il livello di log per Firestore (Utile per il debug)
+    setLogLevel('Debug');
+
+    // Variabili globali fornite dall'ambiente Canvas
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-production-app';
+    const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+    // Prodotti da tracciare (Definizione statica)
+    const PRODUCTS = [
+        { id: 'teglia_grande', name: 'Teglia Grande', unit: 'pz' },
+        { id: 'teglia_pizzette', name: 'Teglia Pizzette', unit: 'pz' },
+        { id: 'parigina', name: 'Parigina', unit: 'pz' },
+        { id: 'scarola', name: 'Scarola', unit: 'pz' },
+        { id: 'patate', name: 'Patate', unit: 'pz' },
+        { id: 'pomodorini', name: 'Pomodorini', unit: 'pz' },
+        { id: 'focaccine_olio', name: 'Focaccine Olio', unit: 'pz' },
+        { id: 'calzoni', name: 'Calzoni', unit: 'pz' },
+        { id: 'impasto', name: 'Impasto', unit: 'kg' },
+    ];
+
+    let db;
+    let auth;
+    let userId = null;
+    let isAuthReady = false;
+    // Rimossa la variabile globale currentDayRef
+
+    // Funzione per ottenere la data di oggi in formato YYYY-MM-DD
+    const getTodayDateKey = () => {
+        return new Date().toISOString().split('T')[0];
+    };
+
+    // --- FUNZIONI DI UTILITY PER FIRESTORE ---
+
+    // Funzione per inizializzare Firebase e autenticarsi
+    const initializeFirebase = async () => {
+        try {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            // Listener per lo stato di autenticazione
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                } else {
+                    // Fallback: se la tokenizzazione fallisce, tenta l'accesso anonimo
+                    await signInAnonymously(auth);
+                    userId = auth.currentUser.uid;
+                }
+
+                document.getElementById('user-info').textContent = `Utente ID: ${userId.substring(0, 8)}...`;
+                document.getElementById('user-id-display').textContent = userId;
+                document.getElementById('app-id-display').textContent = appId;
+                
+                isAuthReady = true;
+                
+                renderInputFields();
+                setupRealtimeListener();
+            });
+
+            // Tenta l'autenticazione con il token custom fornito
+            if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+            }
+            
+        } catch (error) {
+            console.error("Errore nell'inizializzazione di Firebase:", error);
+            document.getElementById('save-status').textContent = `Errore di connessione: ${error.message}`;
+            // Se l'inizializzazione fallisce, usa un ID anonimo locale per i display
+            userId = userId || crypto.randomUUID();
+            document.getElementById('user-info').textContent = `Utente ID: ${userId.substring(0, 8)}... (Offline)`;
+            document.getElementById('user-id-display').textContent = userId;
+            document.getElementById('app-id-display').textContent = appId;
+            isAuthReady = true;
+            renderInputFields();
+        }
+    };
+
+    // Funzione per salvare i dati
+    const saveData = async () => {
+        if (!isAuthReady || !userId || !db) {
+            console.warn("Autenticazione o DB non pronti. Impossibile salvare.");
+            document.getElementById('save-status').textContent = 'Attendere l\'autenticazione...';
+            return;
+        }
+
+        const currentDayRef = doc(db, `artifacts/${appId}/users/${userId}/daily_production`, getTodayDateKey()); // Crea il riferimento localmente
+
+        const productionData = {
+            date: getTodayDateKey(),
+            timestamp: Date.now(),
+        };
+
+        PRODUCTS.forEach(product => {
+            const input = document.getElementById(product.id);
+            // Assicurati che il valore sia un numero o 0
+            productionData[product.id] = parseInt(input.value || 0, 10);
+        });
+        
+        const statusEl = document.getElementById('save-status');
+        const saveButton = document.getElementById('save-button');
+        saveButton.disabled = true;
+        saveButton.classList.add('opacity-50');
+        statusEl.textContent = 'Salvataggio in corso...';
+
+        try {
+            // Utilizziamo setDoc con l'ID documento come data (sovrascrive/crea)
+            await setDoc(currentDayRef, productionData);
+
+            statusEl.textContent = `✅ Produzione di ${getTodayDateKey()} salvata con successo!`;
+            statusEl.classList.remove('text-red-600');
+            statusEl.classList.add('text-green-600');
+            
+        } catch (e) {
+            console.error("Errore durante il salvataggio dei dati: ", e);
+            statusEl.textContent = `❌ Errore durante il salvataggio: ${e.message}`;
+            statusEl.classList.remove('text-green-600');
+            statusEl.classList.add('text-red-600');
+        } finally {
+            saveButton.disabled = false;
+            saveButton.classList.remove('opacity-50');
+            // Nasconde lo stato dopo 3 secondi
+            setTimeout(() => statusEl.textContent = '', 3000);
+        }
+    };
+
+    // Funzione per resettare i campi di input
+    const resetInputs = () => {
+        PRODUCTS.forEach(product => {
+            const input = document.getElementById(product.id);
+            if (input) input.value = 0;
+        });
+        document.getElementById('save-status').textContent = 'Campi di produzione resettati a zero.';
+        setTimeout(() => document.getElementById('save-status').textContent = '', 2000);
+    };
+
+    // --- RENDERING E UI ---
+
+    // Genera i campi di input dinamicamente
+    const renderInputFields = () => {
+        const container = document.getElementById('input-fields');
+        container.innerHTML = PRODUCTS.map(product => `
+            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 shadow-sm">
+                <label for="${product.id}" class="block text-sm font-medium text-gray-700 truncate">${product.name}</label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <input type="number" id="${product.id}" value="0" min="0" 
+                           class="focus:ring-blue-500 focus:border-blue-500 block w-full rounded-l-md border-gray-300 p-2 text-center text-lg font-mono"
+                           onchange="if(this.value < 0) this.value = 0;">
+                    <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-200 text-gray-500 text-sm">
+                        ${product.unit}
+                    </span>
+                </div>
+            </div>
+        `).join('');
+
+        // Collega gli eventi
+        document.getElementById('save-button').onclick = saveData;
+        document.getElementById('reset-button').onclick = resetInputs;
+    };
+
+    // Popola i campi con i dati in tempo reale del giorno corrente
+    const populateTodayData = (data) => {
+        PRODUCTS.forEach(product => {
+            const input = document.getElementById(product.id);
+            if (input) {
+                // Popola il campo con il valore salvato, altrimenti 0
+                input.value = data && data[product.id] !== undefined ? data[product.id] : 0;
+            }
+        });
+    };
+
+    // Renderizza l'elemento dello storico
+    const renderHistoryItem = (data) => {
+        const date = data.id; // La data è l'ID del documento
+        const displayDate = new Date(date).toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        
+        // Crea la lista dei prodotti (escludendo date e timestamp)
+        const itemsList = PRODUCTS
+            .filter(p => data[p.id] > 0)
+            .map(p => `<span class="inline-flex items-center text-xs font-medium bg-gray-100 text-gray-800 px-2.5 py-0.5 rounded-full">${p.name}: <strong>${data[p.id]} ${p.unit}</strong></span>`)
+            .join(' ');
+
+        return `
+            <div class="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-lg font-semibold text-blue-800">${displayDate}</h4>
+                    <span class="text-sm text-gray-500">${date === getTodayDateKey() ? '(Oggi)' : ''}</span>
+                </div>
+                <div class="flex flex-wrap gap-2 text-sm">
+                    ${itemsList.length > 0 ? itemsList : '<span class="text-gray-500 italic">Nessuna produzione registrata in questo giorno.</span>'}
+                </div>
+            </div>
+        `;
+    };
+
+    // --- LISTENER E FILTRI DI FIRESTORE ---
+
+    // Listener in tempo reale per i dati di oggi
+    const setupRealtimeListener = () => {
+        if (!isAuthReady || !db || !userId) return;
+
+        const currentDayRef = doc(db, `artifacts/${appId}/users/${userId}/daily_production`, getTodayDateKey()); // Crea il riferimento localmente
+        
+        // 1. Listener per i dati del giorno corrente (per popolare gli input)
+        onSnapshot(currentDayRef, (doc) => {
+            if (doc.exists()) {
+                console.log("Dati di oggi aggiornati in tempo reale.");
+                populateTodayData(doc.data());
+            } else {
+                console.log("Nessun dato trovato per oggi. Campi a 0.");
+                populateTodayData(null); // Resetta i campi a 0
+            }
+        }, (error) => {
+            console.error("Errore nel listener in tempo reale (oggi):", error);
+        });
+
+        // 2. Listener per lo storico con filtro predefinito (tutto)
+        filterHistory('all');
+        setupFilterButtons();
+    };
+
+    // Funzione per filtrare lo storico
+    const filterHistory = (period) => {
+        if (!isAuthReady || !db || !userId) return;
+
+        const historyListEl = document.getElementById('history-list');
+        const loadingEl = document.getElementById('loading-indicator');
+        loadingEl.classList.remove('hidden');
+        historyListEl.innerHTML = '';
+
+        const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/daily_production`);
+        
+        // Ordina solo per timestamp decrescente nel database. Il filtro temporale avviene in JS.
+        let q = query(collectionRef, orderBy("timestamp", "desc"));
+        
+        // Calcola il timestamp limite per il filtro in JavaScript
+        let cutoffTimestamp = 0;
+        if (period === 'week') {
+            // Timestamp di 7 giorni fa
+            cutoffTimestamp = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        } else if (period === 'month') {
+            // Timestamp di 30 giorni fa
+            cutoffTimestamp = Date.now() - (30 * 24 * 60 * 60 * 1000);
+        }
+
+
+        // Listener per lo storico (onSnapshot viene chiamato subito e ad ogni cambio)
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            loadingEl.classList.add('hidden');
+            if (snapshot.empty) {
+                historyListEl.innerHTML = '<p class="text-center p-4 text-gray-500 italic">Nessun dato di produzione storico trovato.</p>';
+                // Importante: Disconnetti l'ultimo listener se non ci sono dati
+                // Tuttavia, in un onSnapshot per lo storico, di solito si lascia attivo per ricevere nuovi dati.
+                // In questo caso, lo lasciamo attivo.
+                return;
+            }
+
+            // Filtra e mappa i dati in JavaScript
+            const filteredDocs = snapshot.docs.filter(doc => {
+                const docData = doc.data();
+                // Se 'all', includi sempre
+                if (period === 'all') return true;
+                
+                // Filtra in base al timestamp per 'week' o 'month'
+                // Usa il campo 'timestamp' per il filtro JS.
+                return docData.timestamp >= cutoffTimestamp;
+            });
+
+            // L'ordinamento è già stato fatto in Firestore (per timestamp decrescente),
+            // ma lo manteniamo qui per sicurezza dopo il filtro JS.
+            filteredDocs.sort((a, b) => b.data().timestamp - a.data().timestamp);
+
+
+            const historyHtml = filteredDocs.map(doc => {
+                // Crea un oggetto che include l'ID del documento (la data)
+                return renderHistoryItem({ id: doc.id, ...doc.data() });
+            }).join('');
+            
+            historyListEl.innerHTML = historyHtml;
+        }, (error) => {
+            loadingEl.classList.add('hidden');
+            historyListEl.innerHTML = `<p class="text-center p-4 text-red-500">Errore nel caricamento dello storico: ${error.message}</p>`;
+            console.error("Errore nel listener storico:", error);
+            // Non disconnettere il listener qui per permettere un potenziale auto-ripristino
+        });
+        
+        // Memorizza la funzione di disconnessione (non strettamente necessario in questo ambiente semplice,
+        // ma è la best practice in un'app React/Angular per la pulizia).
+        // Poiché non possiamo disconnettere i listener precedenti facilmente in un ambiente HTML monolitico
+        // senza una gestione dello stato più complessa, l'ultimo listener 'onSnapshot' rimane attivo.
+    };
+    
+    // Funzione per collegare i pulsanti di filtro
+    const setupFilterButtons = () => {
+        const buttons = document.querySelectorAll('.filter-button');
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const period = button.getAttribute('data-period');
+                // Aggiorna lo stile dei pulsanti
+                buttons.forEach(btn => {
+                    if (btn.getAttribute('data-period') === period) {
+                        btn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                        btn.classList.add('bg-green-500', 'text-white');
+                    } else {
+                        btn.classList.remove('bg-green-500', 'text-white');
+                        btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    }
+                });
+                filterHistory(period);
+            });
+        });
+    };
+
+    // Inizializza l'applicazione al caricamento della finestra
+    window.onload = initializeFirebase;
+
+</script>
+
+</body>
+</html>
